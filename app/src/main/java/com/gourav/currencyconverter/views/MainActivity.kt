@@ -31,12 +31,7 @@ class MainActivity : AppCompatActivity() {
         binding1 = ActivityCurrencyBinding.inflate(layoutInflater)
         setContentView(binding1.root)
         mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
-
-        val t1: Long = System.currentTimeMillis()
-        Log.e(TAG, "onCreate: t1: $t1")
-
         initRecyclerView()
-
         binding1.cardConvert.setOnClickListener {
             binding1.tvError.isVisible = false
             mainViewModel.convertCurrency(

@@ -1,7 +1,6 @@
 package com.gourav.currencyconverter.repository
 
 import android.content.Context
-import android.util.Log
 import com.gourav.currencyconverter.data.models.CurrencyModel
 import com.gourav.currencyconverter.data.models.Rates
 import com.gourav.currencyconverter.data.network.ApiInterface
@@ -15,136 +14,6 @@ import javax.inject.Inject
 class CurrencyRepository @Inject constructor(
     private val api: ApiInterface, private val appDAO: AppDAO, private val context: Context
 ) {
-
-    private val TAG: String? = "repo>>>>>"
-
-    suspend fun convertCurrency(apiKey: String, base: String): Resource<CurrencyModel?> {
-        try {
-            val response: Response<CurrencyModel>?
-            val result: CurrencyModel?
-            var toCurrencyRate = 0.0
-            val fromCurrencyRate = 0.0
-            if (appDAO.getRates() != null) {
-                Log.e(TAG, "convertCurrency: 1. room not null")
-                //compare saved time in room with current time(if > 30mins)
-                if (checkTimeGap(appDAO.getSavedTime(), System.currentTimeMillis())) {
-                    // time > 30
-                    return if (NetworkUtils.isNetworkAvailable(context)) {
-                        /*--network available--*/
-                        //hit API
-                        //add/update to room
-                        //add/update timestamp
-                        response = api.getRates(apiKey, base) // hit API
-                        result = response.body()
-//                        toCurrencyRate = getRateForCurrency(base, result!!.rates).toDouble()
-
-                        if (response.isSuccessful && result != null) {
-                            appDAO.deletePreviousData()
-                            appDAO.insertRates(result)
-                            appDAO.addTimeStamp(System.currentTimeMillis())
-                            Resource.Success(result)
-                        } else {
-                            Resource.Failure(response.message())
-                        }
-
-                    } else {
-                        //display from room
-                        //show additional warning to update old data
-                        Resource.Success(appDAO.getRates())
-                    }
-                } else {
-                    //time <= 30 mins
-                    //display only
-                    //no room saving
-                    //no timeupdate
-                    return Resource.Success(appDAO.getRates())
-                }
-
-            } else {
-                //no data in room already
-                return if (NetworkUtils.isNetworkAvailable(context)) {
-                    /*--network available--*/
-                    //hit API
-                    //add to room
-                    //add timestamp
-                    response = api.getRates(apiKey, base) // hit API
-                    result = response.body()
-                    if (response.isSuccessful && result != null) {
-                        val time = System.currentTimeMillis()
-                        Log.e(TAG, "convertCurrency: time: $time")
-                        appDAO.insertRates(result)
-                        appDAO.addTimeStamp(time)
-                        Resource.Success(result)
-                    } else {
-                        Resource.Failure(response.message())
-                    }
-                } else {
-                    //no network
-                    Resource.Failure("Please connect to the internet!!")
-                }
-            }
-        } catch (e: Exception) {
-            return Resource.Failure(e.message ?: "error occured")
-        }
-    }
-
-    suspend fun getData(apiKey: String, base: String): Resource<CurrencyModel> {
-        try {
-            val response: Response<CurrencyModel>?
-            val result: CurrencyModel?
-            if (NetworkUtils.isNetworkAvailable(context)) {
-                response = api.getRates(apiKey, base)
-                result = response.body()
-                appDAO.insertRates(result) // saving in room
-                appDAO.addTimeStamp(System.currentTimeMillis()) // updating timestamp value
-                return if (response.isSuccessful && result != null) {
-                    Log.e(TAG, "getData: from remote")
-                    Resource.Success(result)
-                } else {
-                    Resource.Failure(response.message())
-                }
-            } else {
-                //retrieving from local
-                result = appDAO.getRates()
-                return if (result != null) {
-                    Log.e(TAG, "getData: from room")
-                    Resource.Success(result)
-                } else {
-                    Resource.Failure("Please connect to the internet!!")
-                }
-            }
-        } catch (e: Exception) {
-            return Resource.Failure(e.message ?: "error occured")
-        }
-    }
-
-    suspend fun getRates(apiKey: String, base: String): Resource<CurrencyModel> {
-        return try {
-            val response = api.getRates(apiKey, base)
-            val result = response.body()
-            //saving in Room DB
-            appDAO.insertRates(result)
-            if (response.isSuccessful && result != null) {
-                Resource.Success(result)
-            } else {
-                Resource.Failure(response.message())
-            }
-        } catch (e: Exception) {
-            Resource.Failure(e.message ?: "error occured")
-        }
-    }
-
-    fun checkTimeGap(savedTime: Long, newTime: Long): Boolean {
-        var minutesPassed: Long = 0
-        Log.e(TAG, "checkTimeGap: new: $newTime")
-        Log.e(TAG, "checkTimeGap: saved: $savedTime")
-        minutesPassed = ((newTime - savedTime) / 1000) / 60 //minutes
-        Log.e(TAG, "checkTimeGap: $minutesPassed")
-        if (minutesPassed > 4) return true
-        else return false
-//        return minutesPassed > 30
-    }
-
     suspend fun getResult(
         fromCurrency: String,
         toCurrency: String,
@@ -154,17 +23,18 @@ class CurrencyRepository @Inject constructor(
             val response: Response<CurrencyModel>?
             val result: CurrencyModel?
             if (appDAO.getRates() != null) {
-                Log.e(TAG, "convertCurrency: 1. room not null")
                 //compare saved time in room with current time(if > 30mins)
                 if (checkTimeGap(appDAO.getSavedTime(), System.currentTimeMillis())) {
                     // time > 30
                     if (NetworkUtils.isNetworkAvailable(context)) {
+                        /*--network available--*/
+                        //hit API, add to room, add timestamp, convert
                         response = api.getRates(Constants.apikey, "USD") // hit API
                         result = response.body()
                         if (response.isSuccessful && result != null) {
                             val time = System.currentTimeMillis()
                             val savedRates = saveAndGetRates(result, time)
-                            val finalAmount = getFinalResult(
+                            val finalAmount = performConversion(
                                 getRateForCurrency(fromCurrency, savedRates)!!,
                                 getRateForCurrency(toCurrency, savedRates)!!, amount
                             )
@@ -172,44 +42,35 @@ class CurrencyRepository @Inject constructor(
                         } else {
                             return Resource.Failure(response.message())
                         }
-                        /*--network available--*/
-                        //hit API
-                        //add/update to room
-                        //add/update timestamp
                     } else {
                         val savedRates = appDAO.getRates().rates
-                        val finalAmount = getFinalResult(
+                        val finalAmount = performConversion(
                             getRateForCurrency(fromCurrency, savedRates)!!,
                             getRateForCurrency(toCurrency, savedRates)!!, amount
                         )
                         return Resource.Success(finalAmount.toString())
                     }
                 } else {
+                    //time <= 30m, convert
                     val savedRates = appDAO.getRates().rates
-                    val finalAmount = getFinalResult(
+                    val finalAmount = performConversion(
                         getRateForCurrency(fromCurrency, savedRates)!!,
                         getRateForCurrency(toCurrency, savedRates)!!, amount
                     )
                     return Resource.Success(finalAmount.toString())
-                    //time <= 30 mins
-                    //display only
-                    //no room saving
-                    //no timeupdate
                 }
 
             } else {
                 //no data in room already
                 if (NetworkUtils.isNetworkAvailable(context)) {
                     /*--network available--*/
-                    //hit API
-                    //add to room
-                    //add timestamp
-                    response = api.getRates(Constants.apikey, "USD") // hit API
+                    //hit API, add to room, add timestamp, convert
+                    response = api.getRates(Constants.apikey, Constants.baseCurrency)
                     result = response.body()
                     if (response.isSuccessful && result != null) {
                         val time = System.currentTimeMillis()
                         val savedRates = saveAndGetRates(result, time)
-                        val finalAmount = getFinalResult(
+                        val finalAmount = performConversion(
                             getRateForCurrency(fromCurrency, savedRates)!!,
                             getRateForCurrency(toCurrency, savedRates)!!, amount
                         )
@@ -223,6 +84,7 @@ class CurrencyRepository @Inject constructor(
                 }
             }
         } catch (e: Exception) {
+            //catch exception
             return Resource.Failure(e.message ?: "error occured")
         }
     }
@@ -233,7 +95,13 @@ class CurrencyRepository @Inject constructor(
         return appDAO.getRates().rates
     }
 
-    fun getFinalResult(
+    fun checkTimeGap(savedTime: Long, newTime: Long): Boolean {
+        val minutesPassed: Long
+        minutesPassed = ((newTime - savedTime) / 1000) / 60 //minutes
+        return minutesPassed > 4
+    }
+
+    fun performConversion(
         currencyFromAmt: Double,
         currencyToAmt: Double,
         amountToConvert: Double
