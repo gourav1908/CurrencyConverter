@@ -3,7 +3,7 @@ package com.gourav.currencyconverter.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.gson.Gson
+import com.gourav.currencyconverter.data.models.CurrencyModel
 import com.gourav.currencyconverter.data.models.Rates
 import com.gourav.currencyconverter.repository.CurrencyRepository
 import com.gourav.currencyconverter.utils.Constants
@@ -13,9 +13,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import org.json.JSONTokener
 import javax.inject.Inject
-import kotlin.math.roundToInt
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
@@ -33,6 +31,26 @@ class MainViewModel @Inject constructor(
     private val _conversion = MutableStateFlow<CurrencyEvents>(CurrencyEvents.Empty)
     val conversion: StateFlow<CurrencyEvents> = _conversion
 
+    fun convertCurrency(amount: String, fromCurrency: String, toCurrency: String) {
+        val fromAmount = amount.toDoubleOrNull()
+        if (fromAmount == null) {
+            _conversion.value = CurrencyEvents.Error("Not a valid amount")
+            return
+        }
+        viewModelScope.launch(dispatcher.io) {
+            _conversion.value = CurrencyEvents.Loading
+            when (val resp: Resource<String> =
+                repository.getResult(fromCurrency, toCurrency, fromAmount)) {
+                is Resource.Failure -> {
+                    _conversion.value = CurrencyEvents.Error(resp.message!!)
+                }
+                is Resource.Success ->{
+                    _conversion.value = CurrencyEvents.Success("$fromAmount $fromCurrency = ${resp.data} $toCurrency")
+                }
+            }
+        }
+    }
+
     fun convert(amount: String, fromCurrency: String, toCurrency: String) {
         val fromAmount = amount.toFloatOrNull()
         if (fromAmount == null) {
@@ -42,18 +60,8 @@ class MainViewModel @Inject constructor(
 
         viewModelScope.launch(dispatcher.io) {
             _conversion.value = CurrencyEvents.Loading
-            /*val response = repository.getRates(Constants.apikey, fromCurrency)
-//            Log.e(TAG, "convert: respo: ${response.data.toString()}")
-
-            val moshi: Moshi = Moshi.Builder().build()
-            val adapter: JsonAdapter<CurrencyModel> = moshi.adapter(CurrencyModel::class.java)
-            val currency = adapter.fromJson(response.data.toString())
-
-//            val currencyPojo = convertToObject(response.data.toString(), CurrencyPojo::class.java)
-            Log.e(TAG, "convert: disclaimer: ${currency?.disclaimer}")*/
-
-
-            when (val ratesResponse = repository.getData(Constants.apikey, fromCurrency)) {
+            when (val ratesResponse: Resource<CurrencyModel?> =
+                repository.convertCurrency(Constants.apikey, fromCurrency)) {
                 is Resource.Failure -> {
                     _conversion.value = CurrencyEvents.Error(ratesResponse.message!!)
                     Log.e(TAG, "convert: failure>>>: ${ratesResponse.message!!}")
@@ -65,7 +73,11 @@ class MainViewModel @Inject constructor(
                     if (rate == null) {
                         _conversion.value = CurrencyEvents.Error("unexpected error!!")
                     } else {
-                        val convertedCurrency = (fromAmount * rate * 100).roundToInt() / 100
+                        val convertedCurrency = performConversion(
+                            getRateForCurrency(toCurrency, rates)!!,
+                            getRateForCurrency(fromCurrency, rates)!!,
+                            fromAmount
+                        )
                         _conversion.value = CurrencyEvents.Success(
                             "$fromAmount $fromCurrency = $convertedCurrency $toCurrency"
                         )
@@ -75,10 +87,13 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    //Use if response is in JSONObject as in {...}
-    fun <T : Any> convertToObject(response: String, type: Class<T>): T {
-        val json = JSONTokener(response).nextValue()
-        return Gson().fromJson(json.toString(), type)
+    fun performConversion(
+        currencyToAmt: Double,
+        currencyFromAmt: Double,
+        amountToConvert: Float
+    ): Double {
+        return String.format("%.2f", ((currencyToAmt / currencyFromAmt) * amountToConvert))
+            .toDouble()
     }
 
     private fun getRateForCurrency(currency: String, rates: Rates) = when (currency) {

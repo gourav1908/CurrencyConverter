@@ -1,24 +1,20 @@
 package com.gourav.currencyconverter.views
 
 import android.graphics.Color
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.gourav.currencyconverter.R
 import com.gourav.currencyconverter.databinding.ActivityCurrencyBinding
-import com.gourav.currencyconverter.databinding.ActivityMainBinding
 import com.gourav.currencyconverter.viewmodel.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.*
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -37,11 +33,13 @@ class MainActivity : AppCompatActivity() {
         mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
         val t1: Long = System.currentTimeMillis()
+        Log.e(TAG, "onCreate: t1: $t1")
 
         initRecyclerView()
 
         binding1.cardConvert.setOnClickListener {
-            mainViewModel.convert(
+            binding1.tvError.isVisible = false
+            mainViewModel.convertCurrency(
                 binding1.etAmount.text.toString(),
                 binding1.spinnerFrom.selectedItem.toString(),
                 toCurrency
@@ -58,8 +56,8 @@ class MainActivity : AppCompatActivity() {
                     }
                     is MainViewModel.CurrencyEvents.Error -> {
                         binding1.progressBar.isVisible = false
-                        binding1.tvResult.setTextColor(Color.RED)
-                        binding1.tvResult.text = event.errorMessage
+                        binding1.tvError.isVisible = true
+                        binding1.tvError.text = event.errorMessage
                     }
                     is MainViewModel.CurrencyEvents.Loading -> {
                         binding1.progressBar.isVisible = true
@@ -76,7 +74,6 @@ class MainActivity : AppCompatActivity() {
         currencyAdapter = CurrencyAdapter(this, currencyList)
         currencyAdapter.setCurrencies(currencyList)
         binding1.recyclerTo.apply {
-//            layoutManager = LinearLayoutManager(this@MainActivity)
             layoutManager = GridLayoutManager(this@MainActivity, 3)
             setHasFixedSize(true)
             adapter = currencyAdapter
@@ -92,7 +89,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onLongItemClick(view: View?, position: Int) {
-
+                //Not Implemented
             }
 
         })
