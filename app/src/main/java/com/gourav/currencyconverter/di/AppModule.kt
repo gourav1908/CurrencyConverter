@@ -6,6 +6,7 @@ import com.gourav.currencyconverter.data.network.ApiInterface
 import com.gourav.currencyconverter.data.room.AppDatabase
 import com.gourav.currencyconverter.data.room.AppDAO
 import com.gourav.currencyconverter.repository.CurrencyRepository
+import com.gourav.currencyconverter.repository.RepositoryInterface
 import com.gourav.currencyconverter.utils.Constants.Companion.BASE_URL
 import com.gourav.currencyconverter.utils.DispatchersInterface
 import dagger.Module
@@ -54,13 +55,11 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideRepository(apiInterface: ApiInterface, dao: AppDAO, @ApplicationContext context: Context): CurrencyRepository {
-        return CurrencyRepository(apiInterface, dao, context)
-    }
-
-    /*@Singleton
-    @Provides
-    fun providesMainRepository(apiInterface: ApiInterface):RepositoryInterface = CurrencyRepository(apiInterface)*/
+    fun providesMainRepository(
+        apiInterface: ApiInterface,
+        dao: AppDAO,
+        @ApplicationContext context: Context
+    ): RepositoryInterface = CurrencyRepository(apiInterface, dao, context)
 
     @Singleton
     @Provides

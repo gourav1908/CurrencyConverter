@@ -1,8 +1,6 @@
 package com.gourav.currencyconverter.views
 
-import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
@@ -18,12 +16,9 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
-    private val TAG: String = "main>>>>"
-
-    //    lateinit var binding: ActivityMainBinding
     lateinit var binding1: ActivityCurrencyBinding
     lateinit var currencyAdapter: CurrencyAdapter
-    var toCurrency = "USD"
+    var toCurrency = "JPY" //initial
 
     lateinit var mainViewModel: MainViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,6 +29,7 @@ class MainActivity : AppCompatActivity() {
         initRecyclerView()
         binding1.cardConvert.setOnClickListener {
             binding1.tvError.isVisible = false
+            binding1.tvResult.text = null
             mainViewModel.convertCurrency(
                 binding1.etAmount.text.toString(),
                 binding1.spinnerFrom.selectedItem.toString(),
@@ -46,7 +42,6 @@ class MainActivity : AppCompatActivity() {
                 when (event) {
                     is MainViewModel.CurrencyEvents.Success -> {
                         binding1.progressBar.isVisible = false
-                        binding1.tvResult.setTextColor(Color.BLACK)
                         binding1.tvResult.text = event.resultMessage
                     }
                     is MainViewModel.CurrencyEvents.Error -> {

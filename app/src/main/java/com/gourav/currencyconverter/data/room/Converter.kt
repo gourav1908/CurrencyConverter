@@ -8,7 +8,7 @@ import java.lang.reflect.Type
 
 class Converter {
 
-    @TypeConverter // note this annotation
+    @TypeConverter
     fun saveRateObject(rateObject: Rates?): String? {
         if (rateObject == null) {
             return null
@@ -19,7 +19,7 @@ class Converter {
         return gson.toJson(rateObject, type)
     }
 
-    @TypeConverter // note this annotation
+    @TypeConverter
     fun getImageListFromString(rateObjectStr: String?): Rates? {
         if (rateObjectStr == null) {
             return null

@@ -12,7 +12,7 @@ data class CurrencyModel(
     val base: String,
     val disclaimer: String,
     val license: String,
-    @TypeConverters(Converter::class) // add here
+    @TypeConverters(Converter::class)
     @ColumnInfo(name = "rates")
     val rates: Rates,
     val timestamp: Int,

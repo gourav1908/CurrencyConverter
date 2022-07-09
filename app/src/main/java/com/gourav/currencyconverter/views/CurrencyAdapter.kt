@@ -6,10 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.gourav.currencyconverter.R
-import com.gourav.currencyconverter.data.models.Rates
 
 class CurrencyAdapter(val context: Context, var currencyList: List<String>) :
     RecyclerView.Adapter<CurrencyAdapter.ViewHolder>() {
@@ -54,7 +52,6 @@ class CurrencyAdapter(val context: Context, var currencyList: List<String>) :
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
         View.OnClickListener {
         val tv_code: TextView = itemView.findViewById(R.id.tv_code)
-        val card_root: CardView = itemView.findViewById(R.id.card_root)
         val lyt_selected: LinearLayout = itemView.findViewById(R.id.lyt_selected)
 
         init {

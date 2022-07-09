@@ -2,9 +2,9 @@ package com.gourav.currencyconverter.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gourav.currencyconverter.repository.CurrencyRepository
+import com.gourav.currencyconverter.repository.RepositoryInterface
 import com.gourav.currencyconverter.utils.DispatchersInterface
-import com.gourav.currencyconverter.utils.Resource
+import com.gourav.currencyconverter.utils.ResponseState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,7 +13,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val repository: CurrencyRepository,
+    private val repository: RepositoryInterface,
     private val dispatcher: DispatchersInterface
 ) : ViewModel() {
     sealed class CurrencyEvents() {
@@ -34,12 +34,12 @@ class MainViewModel @Inject constructor(
         }
         viewModelScope.launch(dispatcher.io) {
             _conversion.value = CurrencyEvents.Loading
-            when (val result: Resource<String> =
+            when (val result: ResponseState<String> =
                 repository.getResult(fromCurrency, toCurrency, fromAmount)) {
-                is Resource.Failure -> {
+                is ResponseState.Failure -> {
                     _conversion.value = CurrencyEvents.Error(result.message!!)
                 }
-                is Resource.Success -> {
+                is ResponseState.Success -> {
                     _conversion.value =
                         CurrencyEvents.Success("$fromAmount $fromCurrency = ${result.data} $toCurrency")
                 }
