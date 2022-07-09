@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.gourav.currencyconverter.data.room.Converter
 
-@Entity(tableName = "currency_list")
+@Entity(tableName = "currencies")
 data class CurrencyModel(
     @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "id") val id: Int = 0,
     val base: String,
@@ -14,7 +14,7 @@ data class CurrencyModel(
     val license: String,
     @TypeConverters(Converter::class)
     @ColumnInfo(name = "rates")
-    val rates: Rates,
-    val timestamp: Int,
-    val dataTimeStamp: Int
+    val rates: List<Rates>,
+    val timestamp: Long,
+    val dataTimeStamp: Long
 )

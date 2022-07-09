@@ -1,7 +1,5 @@
 package com.gourav.currencyconverter.repository
 
-import com.gourav.currencyconverter.data.models.CurrencyModel
-import com.gourav.currencyconverter.data.models.Rates
 import com.gourav.currencyconverter.utils.ResponseState
 
 interface RepositoryInterface {
@@ -15,5 +13,4 @@ interface RepositoryInterface {
         currencyToAmt: Double,
         amountToConvert: Double
     ): Double
-
 }

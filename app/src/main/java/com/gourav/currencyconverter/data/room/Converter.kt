@@ -9,24 +9,24 @@ import java.lang.reflect.Type
 class Converter {
 
     @TypeConverter
-    fun saveRateObject(rateObject: Rates?): String? {
-        if (rateObject == null) {
+    fun saveRateObject(rateList: List<Rates>?): String? {
+        if (rateList == null) {
             return null
         }
         val gson = Gson()
         val type: Type =
-            object : TypeToken<Rates?>() {}.type
-        return gson.toJson(rateObject, type)
+            object : TypeToken<List<Rates>?>() {}.type
+        return gson.toJson(rateList, type)
     }
 
     @TypeConverter
-    fun getImageListFromString(rateObjectStr: String?): Rates? {
+    fun retriveRateObject(rateObjectStr: String?): List<Rates>? {
         if (rateObjectStr == null) {
             return null
         }
         val gson = Gson()
         val type =
-            object : TypeToken<Rates?>() {}.type
-        return gson.fromJson<Rates>(rateObjectStr, type)
+            object : TypeToken<List<Rates>?>() {}.type
+        return gson.fromJson<List<Rates>?>(rateObjectStr, type)
     }
 }

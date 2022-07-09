@@ -35,6 +35,7 @@ class MainActivity : AppCompatActivity() {
                 binding1.spinnerFrom.selectedItem.toString(),
                 toCurrency
             )
+//            mainViewModel.getRates()
         }
 
         CoroutineScope(Dispatchers.Main).launch {

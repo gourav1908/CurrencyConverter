@@ -1,7 +1,6 @@
 package com.gourav.currencyconverter.repository
 
 import com.gourav.currencyconverter.data.models.CurrencyModel
-import com.gourav.currencyconverter.data.models.Rates
 import com.gourav.currencyconverter.utils.Constants
 import com.gourav.currencyconverter.utils.ResponseState
 import retrofit2.Response
