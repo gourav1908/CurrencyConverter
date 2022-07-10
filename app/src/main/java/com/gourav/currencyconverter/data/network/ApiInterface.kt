@@ -8,7 +8,7 @@ import retrofit2.http.Query
 interface ApiInterface {
 
     @GET("api/latest.json")
-    suspend fun getRates2(
+    suspend fun getRates(
         @Query("app_id") app_id: String,
         @Query("base") base: String
     ): Response<JsonElement>

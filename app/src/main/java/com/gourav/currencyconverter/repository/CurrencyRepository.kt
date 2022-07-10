@@ -1,6 +1,7 @@
 package com.gourav.currencyconverter.repository
 
 import android.content.Context
+import android.util.Log
 import com.google.gson.JsonElement
 import com.gourav.currencyconverter.R
 import com.gourav.currencyconverter.data.models.CurrencyModel
@@ -18,6 +19,11 @@ class CurrencyRepository @Inject constructor(
     private val api: ApiInterface, private val appDAO: AppDAO, private val context: Context
 ) : RepositoryInterface {
 
+    private val TAG: String? = "repo>>>>"
+    private lateinit var from: String
+    private lateinit var to: String
+    private var cAmount: Double = 0.0
+
     override suspend fun getResult(
         fromCurrency: String,
         toCurrency: String,
@@ -26,6 +32,11 @@ class CurrencyRepository @Inject constructor(
         try {
             val response: Response<JsonElement>?
             val result: JsonElement?
+
+            from = fromCurrency
+            to = toCurrency
+            cAmount = amount
+
             if (appDAO.getRates() != null) {
                 //compare saved time in room with current time(if > 30mins)
                 if (checkTimeGap(appDAO.getSavedTime(), System.currentTimeMillis())) {
@@ -34,16 +45,19 @@ class CurrencyRepository @Inject constructor(
                         /*--network available--*/
                         //hit API, add to room, add timestamp, convert
                         response =
-                            api.getRates2(Constants.apikey, Constants.baseCurrency) // hit API
+                            api.getRates(Constants.apikey, Constants.baseCurrency) // hit API
                         result = response.body()
                         return if (response.isSuccessful && result != null) {
-                            val time = System.currentTimeMillis()
-                            val pojo = getCurrencyModel(JSONObject(result.toString()))
-                            val savedRates = saveAndGetRates(pojo, time)
+                            val pojo = getCurrencyModel(
+                                JSONObject(result.toString()),
+                                System.currentTimeMillis()
+                            )
+                            val savedRates = saveAndGetRates(pojo)
                             val finalAmount = performConversion(
                                 getRateAmount(fromCurrency, savedRates),
                                 getRateAmount(toCurrency, savedRates), amount
                             )
+                            getConvertedList(savedRates, fromCurrency, amount)
                             ResponseState.Success(finalAmount.toString())
                         } else {
                             ResponseState.Failure(response.message())
@@ -54,6 +68,7 @@ class CurrencyRepository @Inject constructor(
                             getRateAmount(fromCurrency, savedRates),
                             getRateAmount(toCurrency, savedRates), amount
                         )
+                        getConvertedList(savedRates, fromCurrency, amount)
                         return ResponseState.Success(finalAmount.toString())
                     }
                 } else {
@@ -63,6 +78,7 @@ class CurrencyRepository @Inject constructor(
                         getRateAmount(fromCurrency, savedRates),
                         getRateAmount(toCurrency, savedRates), amount
                     )
+                    getConvertedList(savedRates, fromCurrency, amount)
                     return ResponseState.Success(finalAmount.toString())
                 }
 
@@ -71,16 +87,19 @@ class CurrencyRepository @Inject constructor(
                 if (NetworkUtils.isNetworkAvailable(context)) {
                     /*--network available--*/
                     //hit API, add to room, add timestamp, convert
-                    response = api.getRates2(Constants.apikey, Constants.baseCurrency) // hit API
+                    response = api.getRates(Constants.apikey, Constants.baseCurrency) // hit API
                     result = response.body()
                     return if (response.isSuccessful && result != null) {
-                        val time = System.currentTimeMillis()
-                        val pojo = getCurrencyModel(JSONObject(result.toString()))
-                        val savedRates = saveAndGetRates(pojo, time)
+                        val pojo = getCurrencyModel(
+                            JSONObject(result.toString()),
+                            System.currentTimeMillis()
+                        )
+                        val savedRates = saveAndGetRates(pojo)
                         val finalAmount = performConversion(
                             getRateAmount(fromCurrency, savedRates),
                             getRateAmount(toCurrency, savedRates), amount
                         )
+                        getConvertedList(savedRates, fromCurrency, amount)
                         ResponseState.Success(finalAmount.toString())
                     } else {
                         ResponseState.Failure(response.message())
@@ -110,13 +129,38 @@ class CurrencyRepository @Inject constructor(
             .toDouble()
     }
 
-    suspend fun saveAndGetRates(result: CurrencyModel, timeStamp: Long): List<Rates> {
+    private fun getRateAmount(currency: String, rateList: List<Rates>): Double {
+        val value: Rates = rateList.single { it.currencyName == currency }
+        return value.amount
+    }
+
+    private fun getConvertedList(
+        rateist: List<Rates>,
+        from: String,
+        amt: Double
+    ): MutableList<Rates> {
+        val newList = mutableListOf<Rates>()
+        rateist.map {
+            newList.add(
+                Rates(
+                    it.currencyName,
+                    String.format(
+                        "%.2f",
+                        (it.amount / rateist.single { it.currencyName == from }.amount) * amt
+                    ).toDouble()
+                )
+            )
+        }
+        return newList
+    }
+
+    suspend fun saveAndGetRates(result: CurrencyModel): List<Rates> {
         appDAO.insertResponse(result)
-        appDAO.addTimeStamp(timeStamp)
+//        appDAO.addTimeStamp(timeStamp)
         return appDAO.getRates().rates
     }
 
-    private fun getCurrencyModel(jsonObject: JSONObject): CurrencyModel {
+    private fun getCurrencyModel(jsonObject: JSONObject, timeStamp: Long): CurrencyModel {
         val ratesObj = jsonObject.getJSONObject(Constants.KEY_RATES)
         val currencyKeys = iterate(ratesObj.keys())
         val rates = ArrayList<Rates>()
@@ -129,7 +173,7 @@ class CurrencyRepository @Inject constructor(
             jsonObject.getString(Constants.KEY_LICENSE),
             rates,
             jsonObject.getLong(Constants.KEY_TIMESTAMP),
-            System.currentTimeMillis()
+            timeStamp
         )
     }
 
@@ -141,8 +185,7 @@ class CurrencyRepository @Inject constructor(
         }
     }
 
-    private fun getRateAmount(currency: String, rateList: List<Rates>): Double {
-        val value: Rates = rateList.single { it.currencyName == currency }
-        return value.amount
+    private fun conv(fromCurrency: String, toCurrency: String, amt: Double): Any {
+        return "abcd"
     }
 }

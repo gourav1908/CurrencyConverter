@@ -13,8 +13,8 @@ interface AppDAO {
     @Insert
     suspend fun insertResponse(currencyModel: CurrencyModel)
 
-    @Query("UPDATE currencies SET dataTimeStamp = :dataTimeStamp")
-    fun addTimeStamp(dataTimeStamp: Long?)
+    /*@Query("UPDATE currencies SET dataTimeStamp = :dataTimeStamp")
+    fun addTimeStamp(dataTimeStamp: Long?)*/
 
     @Query("SELECT dataTimeStamp from currencies")
     fun getSavedTime(): Long
