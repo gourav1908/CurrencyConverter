@@ -1,5 +1,10 @@
 package com.gourav.currencyconverter.utils
 
+import android.app.Activity
+import android.content.Context
+import android.view.View
+import android.view.inputmethod.InputMethodManager
+
 class Constants {
     companion object {
         const val DB_NAME = "Currency_DB"
@@ -14,5 +19,11 @@ class Constants {
         const val KEY_LICENSE = "license"
         const val KEY_RATES = "rates"
         const val KEY_TIMESTAMP = "timestamp"
+
+        fun hideKeyboard(context: Context, view: View) {
+            val inputMethodManager =
+                context.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+            inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
+        }
     }
 }

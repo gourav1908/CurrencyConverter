@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.gourav.currencyconverter.R
 import com.gourav.currencyconverter.data.models.Rates
 import com.gourav.currencyconverter.databinding.ActivityCurrencyBinding
+import com.gourav.currencyconverter.utils.Constants
 import com.gourav.currencyconverter.viewmodel.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -30,6 +31,7 @@ class MainActivity : AppCompatActivity() {
         mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
         initRecyclerView()
         binding.cardConvert.setOnClickListener {
+            Constants.hideKeyboard(this, binding.cardConvert.rootView)
             binding.tvError.isVisible = false
             mainViewModel.convertCurrency(
                 binding.etAmount.text.toString(),
