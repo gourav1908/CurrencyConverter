@@ -3,13 +3,14 @@
     <string name="currency_converter">Currency Converter</string>
     <string name="amount">Amount</string>
     <string name="from">From</string>
-    <string name="to">To</string>
     <string name="result">Result</string>
     <string name="sample_conversion">e.g 1.0 USD = 79.16 INR</string>
     <string name="convert">Convert</string>
     <string name="enter_amount">Enter Amount</string>
     <string name="no_internet">Please connect to the internet!!</string>
-    <string name="error_occured">error occured!</string>
+    <string name="error_occurred">error occurred!</string>
+    <string name="code">CODE</string>
+    <string name="result_hint">0.0\n\n</string>
 
     <string-array name="currency_codes">
         <item>AED</item> c

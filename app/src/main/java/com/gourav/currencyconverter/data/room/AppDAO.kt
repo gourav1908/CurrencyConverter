@@ -8,13 +8,10 @@ import com.gourav.currencyconverter.data.models.CurrencyModel
 @Dao
 interface AppDAO {
     @Query("SELECT * from currencies")
-    fun getRates():CurrencyModel
+    fun getRates(): CurrencyModel
 
     @Insert
     suspend fun insertResponse(currencyModel: CurrencyModel)
-
-    /*@Query("UPDATE currencies SET dataTimeStamp = :dataTimeStamp")
-    fun addTimeStamp(dataTimeStamp: Long?)*/
 
     @Query("SELECT dataTimeStamp from currencies")
     fun getSavedTime(): Long

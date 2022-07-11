@@ -1,6 +1,5 @@
 package com.gourav.currencyconverter.views
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,8 +7,9 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.gourav.currencyconverter.R
+import com.gourav.currencyconverter.data.models.Rates
 
-class CurrencyAdapter(val context: Context, var currencyList: List<String>) :
+class CurrencyAdapter(private var currencyList: List<Rates>) :
     RecyclerView.Adapter<CurrencyAdapter.ViewHolder>() {
     private var checkedPosition = 0
     var mListener: OnItemClickListener? = null
@@ -19,19 +19,14 @@ class CurrencyAdapter(val context: Context, var currencyList: List<String>) :
         fun onLongItemClick(view: View?, position: Int)
     }
 
-    fun SetOnItemClickListener(onItemClickListener: OnItemClickListener) {
+    fun addOnItemClickListener(onItemClickListener: OnItemClickListener) {
         this.mListener = onItemClickListener
     }
 
-    fun setCurrencies(currencyList: List<String>) {
+    fun setCurrencies(currencyList: List<Rates>) {
         this.currencyList = ArrayList()
         this.currencyList = currencyList
         notifyDataSetChanged()
-    }
-
-    fun changePosition(checkedPosition: Int) {
-        this.checkedPosition = checkedPosition
-        notifyItemChanged(checkedPosition)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -41,8 +36,8 @@ class CurrencyAdapter(val context: Context, var currencyList: List<String>) :
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.tv_code.text = currencyList[position]
-        holder.bind(position)
+        holder.tvCode.text = currencyList[position].currencyName
+        holder.tvAmount.text = currencyList[position].amount.toString()
     }
 
     override fun getItemCount(): Int {
@@ -51,29 +46,15 @@ class CurrencyAdapter(val context: Context, var currencyList: List<String>) :
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
         View.OnClickListener {
-        val tv_code: TextView = itemView.findViewById(R.id.tv_code)
-        val lyt_selected: LinearLayout = itemView.findViewById(R.id.lyt_selected)
+        val tvCode: TextView = itemView.findViewById(R.id.tv_code)
+        val tvAmount: TextView = itemView.findViewById(R.id.tv_amount)
+        private val lytSelected: LinearLayout = itemView.findViewById(R.id.lyt_selected)
 
         init {
-            lyt_selected.setOnClickListener { v: View ->
+            lytSelected.setOnClickListener { v: View ->
                 onClick(
                     v
                 )
-            }
-        }
-
-        fun bind(position: Int) {
-            if (checkedPosition == -1) {
-                lyt_selected.setBackgroundColor(context.resources.getColor(R.color.white))
-                tv_code.setTextColor(context.resources.getColor(R.color.black))
-            } else {
-                if (checkedPosition == adapterPosition) {
-                    lyt_selected.setBackgroundColor(context.resources.getColor(R.color.purple_700))
-                    tv_code.setTextColor(context.resources.getColor(R.color.white))
-                } else {
-                    lyt_selected.setBackgroundColor(context.resources.getColor(R.color.white))
-                    tv_code.setTextColor(context.resources.getColor(R.color.black))
-                }
             }
         }
 

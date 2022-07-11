@@ -2,6 +2,7 @@ package com.gourav.currencyconverter.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gourav.currencyconverter.data.models.Rates
 import com.gourav.currencyconverter.repository.RepositoryInterface
 import com.gourav.currencyconverter.utils.DispatchersInterface
 import com.gourav.currencyconverter.utils.ResponseState
@@ -16,8 +17,8 @@ class MainViewModel @Inject constructor(
     private val repository: RepositoryInterface,
     private val dispatcher: DispatchersInterface
 ) : ViewModel() {
-    sealed class CurrencyEvents() {
-        class Success(val resultMessage: String) : CurrencyEvents()
+    sealed class CurrencyEvents {
+        class Success(val resultList: List<Rates>) : CurrencyEvents()
         class Error(val errorMessage: String) : CurrencyEvents()
         object Loading : CurrencyEvents()
         object Empty : CurrencyEvents()
@@ -26,9 +27,10 @@ class MainViewModel @Inject constructor(
     private val _conversion = MutableStateFlow<CurrencyEvents>(CurrencyEvents.Empty)
     val conversion: StateFlow<CurrencyEvents> = _conversion
 
+
     fun convertCurrency(amount: String, fromCurrency: String, toCurrency: String) {
-        val fromAmount = amount.toDoubleOrNull()
-        if (fromAmount == null) {
+        val fromAmount = amount.toBigDecimalOrNull()
+        if (fromAmount == null || amount.toDouble() == 0.0) {
             _conversion.value = CurrencyEvents.Error("Not a valid amount")
             return
         }
@@ -41,7 +43,7 @@ class MainViewModel @Inject constructor(
                 }
                 is ResponseState.Success -> {
                     _conversion.value =
-                        CurrencyEvents.Success("$fromAmount $fromCurrency = ${result.data} $toCurrency")
+                        CurrencyEvents.Success(result.convertedList)
                 }
             }
         }

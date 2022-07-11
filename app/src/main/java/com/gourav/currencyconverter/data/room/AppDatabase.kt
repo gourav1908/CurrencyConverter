@@ -6,8 +6,9 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.gourav.currencyconverter.data.models.CurrencyModel
+import com.gourav.currencyconverter.utils.Constants
 
-@Database(entities = [CurrencyModel::class], version = 2)
+@Database(entities = [CurrencyModel::class], version = 1)
 @TypeConverters(Converter::class)
 abstract class AppDatabase : RoomDatabase() {
 
@@ -21,7 +22,7 @@ abstract class AppDatabase : RoomDatabase() {
                 dbInstance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
-                    "Currency_DB"
+                    Constants.DB_NAME
                 )
                     .allowMainThreadQueries()
                     .fallbackToDestructiveMigration()

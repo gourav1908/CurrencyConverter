@@ -6,7 +6,6 @@ import com.gourav.currencyconverter.MainCoroutineRule
 import com.gourav.currencyconverter.repository.FakeCurrencyRepository
 import com.gourav.currencyconverter.utils.ResponseState
 import kotlinx.coroutines.runBlocking
-import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -19,41 +18,35 @@ class MainViewModelTest {
     @get:Rule
     var mainCoroutineRule = MainCoroutineRule()
 
-    private lateinit var viewmodel: MainViewModel
+    private lateinit var viewModel: MainViewModel
 
     @Before
     fun setup() {
-        viewmodel = MainViewModel(FakeCurrencyRepository(), mainCoroutineRule.dispatcher)
+        viewModel = MainViewModel(FakeCurrencyRepository(), mainCoroutineRule.dispatcher)
     }
 
     @Test
     fun `empty amount returns error message`() = runBlocking {
-        viewmodel.convertCurrency("", "USD", "JPY")
+        val amount = ""
+        val fromAMt = amount.toBigDecimalOrNull()
 
-//        val vv: MainViewModel.CurrencyEvents = viewmodel.conversion.value
+        viewModel.convertCurrency(fromAMt.toString(), "USD", "JPY")
 
-        val res = MainViewModel.CurrencyEvents.Error(viewmodel.conversion.value.toString())
-//        res.errorMessage
+        var re = MainViewModel.CurrencyEvents.Error("Not a valid amount")
 
-        /* val result: ResponseState<String> =
-             ResponseState.Failure(viewmodel.conversion.value.toString())*/
-        assertThat(res.errorMessage).isEqualTo(res.errorMessage)
-//        val result: MainViewModel.CurrencyEvents
-//        assertThat(result.toString()).isEqualTo(result.toString())
-
-
-//        assertThat(viewmodel.CurrencyEvents.Error(result))
-
-        /*Assert.assertEquals(
-            MainViewModel.CurrencyEvents.Error("empty amount"),
-            viewmodel.conversion.value
-        )*/
+        if (fromAMt == null) {
+            val result: MainViewModel.CurrencyEvents = viewModel.conversion.value
+            re = result as MainViewModel.CurrencyEvents.Error
+        }
+        assertThat(re.errorMessage).isEqualTo("Not a valid amount")
     }
 
     @Test
-    fun `entered amount returns some result`() {
-        viewmodel.convertCurrency("", "USD", "JPY")
-        val result = MainViewModel.CurrencyEvents.Success(viewmodel.conversion.value.toString())
-        assertThat(result.resultMessage).isNotEqualTo(MainViewModel.CurrencyEvents.Error("Not a valid amount"))
+    fun `entered amount returns some result`() = runBlocking {
+        val amount = "223.12"
+        val fromAmt = amount.toBigDecimal()
+        val result: ResponseState<String> =
+            FakeCurrencyRepository().getResult("USD", "JPY", fromAmt)
+        assertThat(result).isNotEqualTo("Not a valid amount")
     }
 }

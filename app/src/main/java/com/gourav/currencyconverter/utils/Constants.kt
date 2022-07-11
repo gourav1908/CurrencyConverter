@@ -2,6 +2,7 @@ package com.gourav.currencyconverter.utils
 
 class Constants {
     companion object {
+        const val DB_NAME = "Currency_DB"
         const val BASE_URL = "https://openexchangerates.org/"
         const val apikey = "85d242322fe54db6bc15fbedb270a640"
         const val baseCurrency = "USD"

@@ -1,6 +1,8 @@
 package com.gourav.currencyconverter.utils
 
-sealed class ResponseState<T>(val data: T?, val message: String?) {
-    class Success<T>(data: T) : ResponseState<T>(data, null)
-    class Failure<T>(message: String) : ResponseState<T>(null, message)
+import com.gourav.currencyconverter.data.models.Rates
+
+sealed class ResponseState<T>(val convertedList: List<Rates>, val message: String?) {
+    class Success<T>(convertedList: List<Rates>) : ResponseState<T>(convertedList, null)
+    class Failure<T>(message: String) : ResponseState<T>(ArrayList(), message)
 }

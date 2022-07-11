@@ -20,7 +20,7 @@ class Converter {
     }
 
     @TypeConverter
-    fun retriveRateObject(rateObjectStr: String?): List<Rates>? {
+    fun retrieveRateObject(rateObjectStr: String?): List<Rates>? {
         if (rateObjectStr == null) {
             return null
         }

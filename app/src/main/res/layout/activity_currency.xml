@@ -5,14 +5,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+<!--    style="@style/ThemeOverlay.Material3.AutoCompleteTextView.OutlinedBox"-->
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tl_amount"
-        style="@style/ThemeOverlay.Material3.AutoCompleteTextView.OutlinedBox"
+        style="@style/Theme.CurrencyConverter"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/margin_20dp"
         android:layout_marginTop="@dimen/margin_20dp"
         android:layout_marginEnd="@dimen/margin_20dp"
+        android:hint="@string/enter_amount"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -20,65 +23,16 @@
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/et_amount"
             android:layout_width="match_parent"
-            android:textStyle="bold"
-            android:textSize="@dimen/text_20sp"
-            android:gravity="center"
             android:layout_height="match_parent"
             android:background="@color/white"
+            android:gravity="center"
             android:inputType="numberDecimal"
-            android:maxLength="8"
-            android:hint="@string/enter_amount"
-            android:textColor="@color/black" />
+            android:maxLength="10"
+            android:textColor="@color/black"
+            android:textSize="@dimen/text_20sp"
+            android:textStyle="bold" />
 
     </com.google.android.material.textfield.TextInputLayout>
-
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/margin_20dp"
-        android:layout_marginTop="@dimen/margin_8dp"
-        android:text="@string/result"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tl_amount" />
-
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cardView2"
-        android:layout_width="@dimen/margin_0dp"
-        android:layout_height="@dimen/margin_0dp"
-        android:layout_marginStart="@dimen/margin_20dp"
-        android:layout_marginTop="@dimen/margin_4dp"
-        android:layout_marginEnd="@dimen/margin_10dp"
-        app:layout_constraintBottom_toBottomOf="@+id/card_spinner"
-        app:layout_constraintEnd_toStartOf="@+id/card_spinner"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView3">
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:padding="@dimen/margin_10dp">
-
-            <TextView
-                android:textColor="@color/teal_700"
-                android:id="@+id/tv_result"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:hint="@string/sample_conversion"
-                android:textStyle="bold" />
-
-            <ProgressBar
-                android:id="@+id/progressBar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:layout_marginStart="@dimen/margin_20dp"
-                android:visibility="gone" />
-
-        </RelativeLayout>
-
-    </androidx.cardview.widget.CardView>
 
     <TextView
         android:id="@+id/textView2"
@@ -116,54 +70,73 @@
 
     </androidx.cardview.widget.CardView>
 
-
     <TextView
         android:id="@+id/tv_error"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
-        android:layout_marginTop="@dimen/margin_4dp"
-        android:layout_marginEnd="@dimen/margin_20dp"
-        android:textColor="@color/dark_red"
+        android:layout_marginEnd="8dp"
+        android:gravity="center"
+        android:text="@string/enter_amount"
         android:textSize="@dimen/text_11sp"
         android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/card_spinner"
+        app:layout_constraintEnd_toStartOf="@+id/card_spinner"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/card_spinner" />
+        app:layout_constraintTop_toTopOf="@+id/card_spinner" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_to"
         android:layout_width="match_parent"
         android:layout_height="@dimen/margin_0dp"
         android:layout_marginStart="@dimen/margin_10dp"
-        android:layout_marginTop="@dimen/margin_8dp"
+        android:layout_marginTop="10dp"
         android:layout_marginEnd="@dimen/margin_10dp"
-        android:layout_marginBottom="@dimen/margin_8dp"
+        android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/card_convert"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_error" />
+        app:layout_constraintTop_toBottomOf="@+id/card_spinner"
+        app:layout_constraintVertical_bias="0.01999998"
+        app:layout_constraintVertical_chainStyle="spread" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/card_convert"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:layout_margin="@dimen/margin_8dp"
         android:layout_marginStart="@dimen/margin_8dp"
         android:layout_marginEnd="@dimen/margin_8dp"
         app:cardCornerRadius="@dimen/radius_25dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/recycler_to">
 
-        <TextView
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/purple_700"
-            android:gravity="center"
-            android:padding="@dimen/margin_16dp"
-            android:text="@string/convert"
-            android:textColor="@color/white" />
+            android:background="@color/purple_700">
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tv_convert"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:gravity="center"
+                android:text="@string/convert"
+                android:textColor="@color/white"
+                android:textSize="16sp" />
+
+        </RelativeLayout>
 
     </androidx.cardview.widget.CardView>
 
