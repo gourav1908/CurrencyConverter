@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCurrencyBinding
     private lateinit var currencyAdapter: CurrencyAdapter
-    private var toCurrency = "JPY" //initial
+    private var toCurrency = "INR" //initial
     private lateinit var currencyList: List<Rates>
 
     private lateinit var mainViewModel: MainViewModel
